@@ -1,7 +1,10 @@
 package com.example.demo.service;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.*;
 import java.time.ZoneId;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,12 +23,26 @@ public class UserJdbcApiDao {
     @Value("${spring.datasource.password}")
     private String password;
 
+    @Value("${spring.datasource.driver-class-name}")
+    private String driver;
+
+    private DataSource dataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setDriverClassName(driver);
+
+        HikariDataSource hikariDataSource = new HikariDataSource(config);
+        return hikariDataSource;
+    }
+
     public User findById(int userId) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
         try {
-            connection = DriverManager.getConnection(url, username, password);
+            connection = dataSource().getConnection();
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT * FROM \"user\" WHERE id = " + userId);
             if (resultSet.next()) {
