@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
@@ -54,12 +54,19 @@ public class UserController {
     }
 
     @PostMapping("")
-    @ResponseBody
     public ResponseEntity<UserResponseDto> save(@RequestBody @Valid UserCreateRequestDto request) {
         UserResponseDto user = userService.save(request.getName(), request.getAge(), request.getJob(), request.getSpecialty());
         return ResponseEntity
 //              .status(HttpStatusCode.valueOf(201))
                 .status(HttpStatus.CREATED) // 1. HTTP Status Code
                 .body(user);                // 2. 결과 객체(User)
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDto> update(@PathVariable Integer id, @RequestBody @Valid UserCreateRequestDto request) {
+        UserResponseDto user = userService.update(
+            id, request.getName(), request.getAge(), request.getJob(), request.getSpecialty())
+        ;
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(user);
     }
 }
