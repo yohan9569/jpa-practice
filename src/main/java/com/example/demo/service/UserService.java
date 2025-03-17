@@ -16,14 +16,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserService {
     private final UserRepository userRepository;
     private final UserJdbcApiDao userJdbcRepository;
+    private final UserJdbcTemplateDao userJdbcTemplateRepository;
 
+    // JdbcTemplate이 SQLException을 내부에서 던지기와 처리를 다 해준다.
     public UserResponseDto findById(Integer id) {
-        try {
-            User user = userJdbcRepository.findById(id);
-            return UserResponseDto.from(user);
-        } catch (SQLException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "자원 반납 시 문제가 있습니다.");
-        }
+        User user = userJdbcTemplateRepository.findById(id);
+        return UserResponseDto.from(user);
     }
 
     public List<UserResponseDto> findAll() {
