@@ -69,4 +69,10 @@ public class UserController {
         ;
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(user);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        userService.delete(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
+    }
 }
