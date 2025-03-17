@@ -1,48 +1,26 @@
 package com.example.demo.service;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import java.sql.*;
 import java.time.ZoneId;
 import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class UserJdbcApiDao {
-    @Value("${spring.datasource.url}")
-    private String url;
-
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-
-    @Value("${spring.datasource.driver-class-name}")
-    private String driver;
-
-    private DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
-        config.setDriverClassName(driver);
-
-        HikariDataSource hikariDataSource = new HikariDataSource(config);
-        return hikariDataSource;
-    }
+    private final DataSource dataSource;
 
     public User findById(int userId) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
         try {
-            connection = dataSource().getConnection();
+            connection = dataSource.getConnection();
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT * FROM \"user\" WHERE id = " + userId);
             if (resultSet.next()) {
