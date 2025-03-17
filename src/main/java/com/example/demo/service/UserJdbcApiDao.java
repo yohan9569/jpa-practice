@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import java.sql.*;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,4 +50,41 @@ public class UserJdbcApiDao {
         }
     }
 
+    public List<User> findAll() throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(
+                "SELECT * FROM \"USER\""
+            );
+            List<User> results = new ArrayList<>();
+            while (resultSet.next()) {
+                results.add(
+                    new User(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("age"),
+                        resultSet.getString("job"),
+                        resultSet.getString("specialty"),
+                        resultSet.getTimestamp("created_at")
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+                    )
+                );
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "자원에 대한 접근에 문제가 있습니다.");
+        } finally {
+            // 자원반납
+            if (resultSet != null) resultSet.close();   // 3
+            if (statement != null) statement.close();   // 2
+            if (connection != null) connection.close(); // 1
+        }
+
+    }
 }
