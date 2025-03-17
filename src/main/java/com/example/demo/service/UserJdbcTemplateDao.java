@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.time.ZoneId;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -29,5 +30,23 @@ public class UserJdbcTemplateDao {
             ),
             getUserParams
         );
+    }
+
+    public List<User> findAll() {
+        String getUsersQuery = "SELECT * FROM \"user\"";
+        return jdbcTemplate.queryForStream(
+            getUsersQuery,
+            (resultSet, rowNum) -> new User(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getInt("age"),
+                resultSet.getString("job"),
+                resultSet.getString("specialty"),
+                resultSet.getTimestamp("created_at")
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+            )
+        ).toList();
     }
 }
