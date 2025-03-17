@@ -19,12 +19,13 @@ public class UserJdbcApiDao {
 
     public User findById(int userId) throws SQLException {
         Connection connection = null;
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
             connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM \"user\" WHERE id = " + userId);
+            statement = connection.prepareStatement("SELECT * FROM \"user\" WHERE id = ?");
+            statement.setInt(1, userId);
+            resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return new User(
                     resultSet.getInt("id"),
@@ -52,14 +53,12 @@ public class UserJdbcApiDao {
 
     public List<User> findAll() throws SQLException {
         Connection connection = null;
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
             connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(
-                "SELECT * FROM \"USER\""
-            );
+            statement = connection.prepareStatement("SELECT * FROM \"user\"");
+            resultSet = statement.executeQuery();
             List<User> results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(
