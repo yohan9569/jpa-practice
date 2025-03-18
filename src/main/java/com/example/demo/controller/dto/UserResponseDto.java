@@ -1,7 +1,9 @@
 package com.example.demo.controller.dto;
 
+import com.example.demo.repository.entity.Message;
 import com.example.demo.service.User;
 import com.fasterxml.jackson.annotation.*;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +27,7 @@ public class UserResponseDto {
     private LocalDateTime createdAt;
     private String address;
     private String postcode;
+    private List<MessageResponseDto> messages;
 
     public static UserResponseDto from(User entity) {
         return new UserResponseDto(
@@ -35,7 +38,14 @@ public class UserResponseDto {
                 entity.getSpecialty(),
                 entity.getCreatedAt(),
                 null,
+                null,
                 null
         );
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages.stream()
+            .map(MessageResponseDto::from)
+            .toList();
     }
 }
